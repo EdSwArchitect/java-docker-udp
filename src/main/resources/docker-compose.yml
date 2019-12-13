@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
+    networks:
+      - data-network
+    volumes:
+      ##      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/data:/data"
+      ##      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/datalog:/datalog"
+      ##      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/zoo.cfg:/conf/zoo.cfg"
+      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/bit-zookeeper:/bitnami/zookeeper"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  #      - ALLOW_PLAINTEXT_LISTENER
+  kafka:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - '9092:9092'
+    ##      - '29002:29092'
+    volumes:
+      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/server.properties:/opt/bitnami/kafka/conf/server.properties"
+      - "/Users/ebrown/Documents/FundamentalsOfDocker/zk-kafka/bit-kafka:/bitnami/kafka/"
+    networks:
+      - data-network
+    environment:
+      #      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    #      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    #      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+    #      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    depends_on:
+      - zookeeper
+  toy:
+    image: edjdk:1
+    entrypoint: /opt/edsw/MockIt-1.0-SNAPSHOT/bin/MockIt udp 5555 kafka:9092 "edwin.test"
+    ports:
+      - '5555:5555/udp'
+    networks:
+      - data-network
+    depends_on:
+      - kafka
+  toyconsumer:
+    image: edjdk:1
+    entrypoint: /opt/edsw/MockIt-1.0-SNAPSHOT/bin/MockIt consumer kafka:9092 "edwin.test"
+    networks:
+      - data-network
+    depends_on:
+      - toy
+networks:
+  data-network:
+    driver: bridge

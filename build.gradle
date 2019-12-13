@@ -1,0 +1,27 @@
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'application'
+}
+
+group 'com.sas.cyber.ekb'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'org.slf4j:slf4j-api:1.7.29'
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+//    compile 'org.apache.kafka:kafka-clients:2.1.0'
+    compile 'org.apache.kafka:kafka-clients:2.3.1'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+//application.mainClassName = 'kafka.MyKafka'
+application.mainClassName = 'kafka.Main'
+
